@@ -14,6 +14,7 @@ public class Worker extends Node {
     Worker(int port){
         try {
             available = true;
+            //worker only sends back to ingress
             dstAddress = ingressAddress;
             socket = new DatagramSocket(port);
             listener.go();
@@ -29,6 +30,12 @@ public class Worker extends Node {
 
             PacketContent content= PacketContent.fromDatagramPacket(packet);
 
+            DatagramPacket response;
+            //acknowledge receipt
+            response = new AckPacketContent("OK - Received this").toDatagramPacket();
+            response.setSocketAddress(packet.getSocketAddress());
+            socket.send(response);
+
             int packetType = content.getType();
             //int packetTopic = content.getTopic();
             switch(packetType) {
@@ -42,9 +49,7 @@ public class Worker extends Node {
                     //added below just for the minute to get all 3 pinging - delete later
                     break;
                 case PacketContent.RECFILEINFO:
-                    System.out.println("Sending File");
-                    //todo: send file back to ingress
-                    sendFile(packet);
+                    System.out.println("Error: Wrong packet received");
                     break;
             }
 
@@ -76,7 +81,8 @@ public class Worker extends Node {
         System.out.println("File size: " + buffer.length);
 
         //TODO: SEND PACKET TO INGRESS
-        FileInfoContent fileContent = new FileInfoContent(filename, size);
+        //FileInfoContent fileContent = new FileInfoContent(filename, size);
+        ReceiveFileContent fileContent = new ReceiveFileContent(filename, size);
 
         System.out.println("Sending packet w/ name: " + filename + " & length: " + size); // Send packet with file name and length
         System.out.println("Client port " + CLIENT_PORT);

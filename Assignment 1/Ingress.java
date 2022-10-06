@@ -41,18 +41,24 @@ public class Ingress extends Node{
             switch(packetType) {
                 case PacketContent.ACKPACKET:
                     System.out.println("Received Ack packet");
-                    this.wait();
+                    //this.wait();
                     break;
 
                 case PacketContent.GETFILEINFO:
                     System.out.println("Received request to get file");
                     getFile(packet);
                     //TODO: Send onto requested worker asking for file
+                    break;
 
                 case PacketContent.RECFILEINFO:
                     System.out.println("Received File");
                     sendFile(packet);
                     //TODO: Send back onto the client
+                    break;
+
+                default:
+                    System.out.println("Packet type not recognised");
+                    break;
             }
     }catch (Exception e){
             e.printStackTrace();
@@ -69,18 +75,18 @@ public class Ingress extends Node{
         //TODO: Set address to send to
         packetCopy.setSocketAddress(workerAddress);
         socket.send(packetCopy);
-        System.out.println("Ingress sent file onto client ");
+        System.out.println("Ingress has sent request for file onto worker ");
         //this.wait();
     }
 
     public synchronized void sendFile(DatagramPacket packet) throws IOException, InterruptedException {
         DatagramPacket packetCopy = packet;
         //TODO: set address to send to
-        packetCopy.setSocketAddress(workerAddress);
+        packetCopy.setSocketAddress(clientAddress);
         //changed this for the minute just to get all 3 pinging
         //packetCopy.setSocketAddress(ingressAddress);
         socket.send(packetCopy);
-        System.out.println("Ingress sent request onto worker ");
+        System.out.println("Ingress has sent file onto client ");
         //this.wait();
     }
 

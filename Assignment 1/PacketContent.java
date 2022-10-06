@@ -21,7 +21,7 @@ public abstract class PacketContent {
     //TODO: other header stuff??
 
 
-    int type= 0;
+    int type;
 
     /**
      * Constructs an object out of a datagram packet.
@@ -51,7 +51,9 @@ public abstract class PacketContent {
                     content= new FileInfoContent(oin);
                     break;
                 case RECFILEINFO:
+                    System.out.println("reaches packetcontent java class");
                     content = new ReceiveFileContent(oin);
+                    System.out.println("made new content");
                     break;
                 default:
                     content= null;

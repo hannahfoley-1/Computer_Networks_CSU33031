@@ -16,8 +16,7 @@ public abstract class Node {
     public static final InetSocketAddress ingressAddress = new InetSocketAddress("part2ingress", INGRESS_PORT);
     public static final InetSocketAddress clientAddress = new InetSocketAddress("part2client", CLIENT_PORT);
     public static final InetSocketAddress workerAddress = new InetSocketAddress("part2worker", WORKER_PORT);
-
-
+    public static final InetSocketAddress worker2Address = new InetSocketAddress("part2worker2", WORKER_PORT);
 
 
     DatagramSocket socket;
@@ -32,7 +31,7 @@ public abstract class Node {
     }
 
 
-    public abstract void onReceipt(DatagramPacket packet);
+    public abstract void onReceipt(DatagramPacket packet) throws Exception;
 
     /**
      *

@@ -18,9 +18,12 @@ import java.util.Scanner;
 public class Client extends Node {
     //static final int DEFAULT_SRC_PORT = 50000;
     //static final int DEFAULT_DST_PORT = 50001;
+
+    //client always sends to ingress
     static final String DEFAULT_DST_NODE = "ingress";
 
     InetSocketAddress dstAddress;
+    static boolean fileReceived = false;
 
     /**
      * Constructor
@@ -41,10 +44,46 @@ public class Client extends Node {
     /**
      * Assume that incoming packets contain a String and print the string.
      */
-    public synchronized void onReceipt(DatagramPacket packet) {
+    public synchronized void onReceipt(DatagramPacket packet) throws Exception {
+        System.out.println("Packet received");
+
+//        DatagramPacket response;
+//        //acknowledge receipt
+//        response = new AckPacketContent("OK - Received this").toDatagramPacket();
+//        response.setSocketAddress(packet.getSocketAddress());
+//        socket.send(response);
+
         PacketContent content= PacketContent.fromDatagramPacket(packet);
-        System.out.println(content.toString());
-        this.notify();
+        int packetType = content.getType();
+        System.out.println(packetType);
+        //int packetTopic = content.getTopic();
+        switch(packetType) {
+            case PacketContent.ACKPACKET:
+                System.out.println("Received Ack packet");
+                //this.wait();
+                break;
+
+            case PacketContent.GETFILEINFO:
+                System.out.println("Error: Client has received request to get file");
+                break;
+
+            case PacketContent.RECFILEINFO:
+                System.out.println("Received File");
+                fileReceived = true;
+                receivedFile(packet);
+                //TODO: READ IN THIS FILE
+                break;
+
+            default:
+                System.out.println("Packet type not recognised");
+                break;
+        }
+        //System.out.println(content.toString());
+        //TODO: GET CLIENT TO READ FILE CONTENT?? MESSAGE INSIDE THE FILE
+        //System.out.println("Client reaches notify");
+        //this.notify();
+        //this.wait();
+        //start();
     }
 
     /**
@@ -87,7 +126,8 @@ public class Client extends Node {
         System.out.println("File size: " + buffer.length);
 
         //TODO: SEND PACKET TO INGRESS
-        ReceiveFileContent fileRequest = new ReceiveFileContent(filename, size);
+        //ReceiveFileContent fileRequest = new ReceiveFileContent(filename, size);
+        FileInfoContent fileRequest = new FileInfoContent(filename, size);
 
         System.out.println("Requesting packet w/ name: " + filename + " & length: " + size); // Send packet with file name and length
 //        System.out.println("Client port " + CLIENT_PORT);
@@ -101,6 +141,11 @@ public class Client extends Node {
         fin.close();
     }
 
+    public synchronized void receivedFile(DatagramPacket packet)
+    {
+        System.out.println("Client has received the file - Thank you!!");
+    }
+
     /**
      * Test method
      *
@@ -109,8 +154,10 @@ public class Client extends Node {
     public static void main(String[] args) {
         try {
             //(new Client(DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).start();
-            (new Client(ingressAddress, CLIENT_PORT)).start();
-            System.out.println("Program completed");
+            while(!fileReceived) {
+                (new Client(ingressAddress, CLIENT_PORT)).start();
+                System.out.println("Program completed");
+            }
         } catch(java.lang.Exception e) {e.printStackTrace();
             System.out.print(DEFAULT_DST_NODE);}
     }
