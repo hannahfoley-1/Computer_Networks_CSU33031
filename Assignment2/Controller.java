@@ -1,3 +1,4 @@
+import javax.crypto.spec.PSource;
 import javax.sound.midi.Soundbank;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -24,6 +25,10 @@ public class Controller extends Node{
 
     public synchronized void start() throws Exception {
         System.out.println("Waiting for contact");
+
+        //pretty print pre defined routing table
+        prettyPrintRoutingTable();
+
         this.wait();
     }
 
@@ -39,7 +44,7 @@ public class Controller extends Node{
     public void onReceipt(DatagramPacket packet) throws Exception {
         try{
             InetSocketAddress responseAddress = (InetSocketAddress) packet.getSocketAddress();
-            System.out.println("Received a packet from" + responseAddress);
+            //System.out.println("Received a packet from" + responseAddress);
             DatagramPacket response;
             response = new AckPackContent("OK - controller received this").toDatagramPacket();
             response.setSocketAddress(responseAddress);
@@ -113,6 +118,26 @@ public class Controller extends Node{
         }
         else return app2Address;
     }
+
+    public void prettyPrintRoutingTable()
+    {
+        System.out.println("Destination  |  Route Through");
+        System.out.println("==============================");
+        for (int i = 0; i < completeRoutingTable.length; i++)
+        {
+            for(int j = 0; j < completeRoutingTable[i].length; j++)
+            {
+                System.out.print(completeRoutingTable[i][j]);
+                if (j != (completeRoutingTable[i].length - 1)) {
+                    System.out.print("            | ");
+                } else {
+                    System.out.print("");
+                }
+            }
+            System.out.println('\n');
+        }
+    }
+
 
 
 }

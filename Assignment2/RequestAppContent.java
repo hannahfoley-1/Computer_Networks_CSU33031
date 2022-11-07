@@ -8,7 +8,7 @@ public class RequestAppContent extends PacketContent{
     RequestAppContent(char appAsked) {
         type= REQUESTPACK;
         app = appAsked;
-        System.out.println("Packet made with app " + app);
+        //System.out.println("Packet made with app " + app);
     }
 
     /**
@@ -30,7 +30,7 @@ public class RequestAppContent extends PacketContent{
      */
     protected void toObjectOutputStream(ObjectOutputStream oout) {
         try {
-            oout.writeUTF(String.valueOf(app));
+            //oout.writeUTF(String.valueOf(app));
             oout.writeInt(size);
         }
         catch(Exception e) {e.printStackTrace();}
